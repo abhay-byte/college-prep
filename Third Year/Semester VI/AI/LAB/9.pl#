@@ -1,0 +1,50 @@
+% Tic-Tac-Toe game in Prolog_, _, _, _, _, _, _, _]).
+
+% Display the board
+display_board([A, B, C, D, E, F, G, H, I]) :-
+    write(' '), write(A), write(' | '), write(B), write(' | '), write(C), nl,
+    write('---+---+---'), nl,
+    write(' '), write(D), write(' | '), write(E), write(' | '), write(F), nl,
+    write('---+---+---'), nl,
+    write(' '), write(G), write(' | '), write(H), write(' | '), write(I)), Nl.
+
+% Check if a player has won
+check_win(Board, Player) :-
+    ( Board = [Player, Player, Player, _, _, _, _, _, _]
+    ; Board = [_, _, _, Player, Player, Player, _, _,     ; Board = [_, _, _, _, Player, _, _, _, Player]
+    ; Board = [Player, _, _, Player, _, _, Player, _, _]
+    ; Board = [_, _, Player, _, Player, _, Player, _, _]
+    ; Board = [_, Player, _, _, Player, _, _, Player, _]
+    ; Board = [Player, _, _, _, Player, _, _, _, Player]
+    ).
+
+% Check if the game is a draw
+check_draw(Board) :-
+    \+ member(_, Board).
+
+% Switch players
+switch_player(x, o).
+switch_player(o, x).
+
+% Make a move: player moves to a given position
+make_move(Board, Player, Position, NewBoard) :-
+    nth1(Position, Board, _),
+    nth1(Position, Board, _, NewBoard),
+    NewBoard = [Player, _, _, _, _, _, _, _, _].
+
+% Main loop for the game
+play :-
+    initial_board(Board),
+    play_loop(Board, x).
+
+play_loop(Board, Player) :-
+    display_board(Board),
+    (   check_win(Board, Player) ->
+        write(Player), write(' wins!'), nl
+    ;   check_draw(Board) ->
+        write('It\'s a draw!'), nl
+    ;   write(Player), write('\'s turn. Enter move (1-9): '),
+        read(Move),
+        (   nth1(Move, Board, _) ->
+            make_move(Board, Player, Move, NewBoard),
+            switch_player(Player, NextP

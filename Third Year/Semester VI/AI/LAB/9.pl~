@@ -1,0 +1,95 @@
+% Write a program to implement Tic-Tac-Toe game using Prolog
+
+% Predicate to initialize the board
+initialize_board([
+	[1, 2, 3],
+	[4, 5, 6],
+	[7, 8, 9]
+]).
+
+% Predicate to display the board
+display_board(Board) :-
+	write(''), nl,
+	display_row(Board, 1),
+	display_row(Board, 2),
+	display_row(Board, 3),
+	write('---'), nl.
+
+% Predicate to display a row of the board
+display_row(Board, Row) :-
+	write('|'),
+	display_element(Board, Row, 1), write('|'),
+	display_element(Board, Row, 2), write('|'),
+	display_element(Board, Row, 3), write('|'), nl.
+
+% Predicate to display an element of the board
+display_element(Board, Row, Col) :-
+	X is Row - 1,
+	Y is Col - 1,
+	nth0(X, Board, RowList),
+	nth0(Y, RowList, Elem),
+	(Elem = 'X' -> write('X');
+	 Elem = 'O' -> write('O');
+	 write(Elem)).
+
+% Predicate to check if a player has won
+check_win(Board, Player) :-
+	% Check rows
+	(member([Player, Player, Player], Board);
+	% Check columns
+	transpose(Board, Transposed),
+	member([Player, Player, Player], Transposed);
+	% Check diagonals
+	Board = [[Player, _, _], [_, Player, _], [_, _, Player]];
+	Board = [[_, _, Player], [_, Player, _], [Player, _, _]]).
+
+% Predicate to check if the game is a draw
+check_draw(Board) :-
+	flatten(Board, FlatBoard),
+	\+ member(1, FlatBoard),
+	\+ member(2, FlatBoard),
+	\+ member(3, FlatBoard),
+	\+ member(4, FlatBoard),
+	\+ member(5, FlatBoard),
+	\+ member(6, FlatBoard),
+	\+ member(7, FlatBoard),
+	\+ member(8, FlatBoard),
+	\+ member(9, FlatBoard).
+
+% Predicate to check if the game is over
+game_over(Board, Player) :-
+	(check_win(Board, Player), write('Player '), write(Player), write(' wins!'), nl;
+	check_draw(Board), write('Its a draw!'), nl;
+	switch_player(Player, Opponent),
+	play_turn(Board, Opponent)).
+
+% Predicate to switch players
+switch_player('X', 'O').
+switch_player('O', 'X').
+
+% Predicate to play a turn
+play_turn(Board, Player) :-
+	display_board(Board),
+	write('Player '), write(Player), write('s turn. '), nl,
+	write('Enter a move (1-9): '),
+	read(Move),
+	(valid_move(Board, Move) -> make_move(Board, Move, Player, NewBoard), game_over(NewBoard, Player);
+	write('Invalid move! Try again.'), nl, play_turn(Board, Player)).
+
+% Predicate to check if a move is valid
+valid_move(Board, Move) :-
+	between(1, 9, Move),
+	flatten(Board, FlatBoard),
+	member(Move, FlatBoard).
+
+% Predicate to make a move
+make_move(Board, Move, Player, NewBoard) :-
+	nth0(RowIndex, Board, Row),
+	nth0(ColIndex, Row, Move),
+	nth0(ColIndex, UpdatedRow, Player, Row),
+	nth0(RowIndex, NewBoard, UpdatedRow, Board).
+
+% Predicate to start the game
+start_game :-
+	initialize_board(Board),
+	play_turn(Board, 'X').
